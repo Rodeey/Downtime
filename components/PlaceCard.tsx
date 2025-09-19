@@ -26,6 +26,9 @@ type Place = {
   formatted_phone_number?: string | null;
   international_phone_number?: string | null;
   types?: string[] | any;
+  opening_hours?: {
+    open_now?: boolean;
+  };
 };
 
 type Props = {
