@@ -10,6 +10,8 @@ import {
   CarIcon,
 } from "./Icons";
 import { CATEGORY_META, getPrimaryCategory } from "./categoryMeta";
+import { initPosthog, posthog } from "@/lib/analytics";
+
 
 type Place = {
   place_id: string;
@@ -125,17 +127,17 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
           {typeof place.vicinity === "string" ? place.vicinity : ""}
         </p>
         <div className="mt-1 text-sm flex items-center gap-2">
-  {typeof place.rating === "number" && (
-    <span className="font-semibold text-yellow-400 flex items-center">
-      ★ {place.rating.toFixed(1)}
-    </span>
-  )}
-  {place.user_ratings_total && (
-    <span className="text-neutral-300 text-xs">
-      ({place.user_ratings_total})
-    </span>
-  )}
-</div>
+          {typeof place.rating === "number" && (
+            <span className="font-semibold text-yellow-400 flex items-center">
+              ★ {place.rating.toFixed(1)}
+            </span>
+          )}
+          {place.user_ratings_total && (
+            <span className="text-neutral-300 text-xs">
+              ({place.user_ratings_total})
+            </span>
+          )}
+        </div>
 
         <div className="linkbar mt-2">
           <a
@@ -144,6 +146,12 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             title="Google Maps"
+            onClick={() =>
+              posthog.capture("Clicked Google Link", {
+                place_id: place.place_id,
+                place_name: place.name,
+              })
+            }
           >
             <GoogleIcon />
           </a>
@@ -154,6 +162,12 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               title="Website"
+              onClick={() =>
+                posthog.capture("Clicked Website Link", {
+                  place_id: place.place_id,
+                  place_name: place.name,
+                })
+              }
             >
               <GlobeIcon />
             </a>
@@ -164,6 +178,12 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             title="Yelp"
+            onClick={() =>
+              posthog.capture("Clicked Yelp Link", {
+                place_id: place.place_id,
+                place_name: place.name,
+              })
+            }
           >
             <YelpIcon />
           </a>
@@ -173,6 +193,12 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             title="TikTok"
+            onClick={() =>
+              posthog.capture("Clicked TikTok Link", {
+                place_id: place.place_id,
+                place_name: place.name,
+              })
+            }
           >
             <TikTokIcon />
           </a>
@@ -181,6 +207,13 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
               className="iconlink"
               href={`tel:${phone.replace(/\s/g, "")}`}
               title="Call"
+              onClick={() =>
+                posthog.capture("Clicked Phone", {
+                  place_id: place.place_id,
+                  place_name: place.name,
+                  phone,
+                })
+              }
             >
               <PhoneIcon />
             </a>
@@ -191,6 +224,14 @@ export default function PlaceCard({ place, userLoc, travel }: Props) {
         href={dirHref}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          posthog.capture("Clicked Directions", {
+            place_id: place.place_id,
+            place_name: place.name,
+            mode,
+            minutes: mins,
+          })
+        }
         className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium ring-1 ring-emerald-500/60 active:scale-95 shrink-0 max-w-[40%] truncate"
       >
         {mode === "walking" ? <WalkIcon /> : <CarIcon />}
