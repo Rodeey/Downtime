@@ -17,14 +17,25 @@ export function estimatedMinutesFromKm(km: number): number {
   return Math.max(1, Math.round(minutes));
 }
 
-export function googleDirectionsLink(from: LatLng | null, to: LatLng): string {
+export function googleDirectionsLink(
+  from: LatLng | null,
+  to: LatLng,
+  mode: "walking" | "driving" = "driving"
+): string {
   const dest = `${to.lat},${to.lng}`;
+  const travelmode = `&travelmode=${mode}`;
+
   if (from) {
     const src = `${from.lat},${from.lng}`;
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(src)}&destination=${encodeURIComponent(dest)}&travelmode=driving`;
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      src
+    )}&destination=${encodeURIComponent(dest)}${travelmode}`;
   }
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=driving`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+    dest
+  )}${travelmode}`;
 }
+
 
 // Persist with ts + accuracy for analytics
 export function saveUserLocation(loc: { lat:number; lng:number; accuracy?:number; ts?:number }) {
