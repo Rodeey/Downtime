@@ -71,18 +71,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const types = String(typesParam).split(",").map(s=>s.trim()).filter(Boolean);
     const center = { lat, lng };
 
-    async function pageForType(t?: string) {
-      const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
-      url.searchParams.set("location", `${center.lat},${center.lng}`);
-      url.searchParams.set("radius", String(radius));
-      if (openNow) url.searchParams.set("opennow", "true");
-      if (t) url.searchParams.set("type", t);
-      else url.searchParams.set("rankby", "prominence");
-      url.searchParams.set("key", apiKey);
-      const r = await fetch(url.toString());
-      if (!r.ok) throw new Error(`Google Places HTTP ${r.status}`);
-      return (await r.json()) as { results: NearbyResult[]; next_page_token?: string };
-    }
+    // ... same up to const center
+
+const pageForType = async (t?: string) => {
+  const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
+  url.searchParams.set("location", `${center.lat},${center.lng}`);
+  url.searchParams.set("radius", String(radius));
+  if (openNow) url.searchParams.set("opennow", "true");
+  if (t) url.searchParams.set("type", t);
+  else url.searchParams.set("rankby", "prominence");
+  url.searchParams.set("key", apiKey);
+  const r = await fetch(url.toString());
+  if (!r.ok) throw new Error(`Google Places HTTP ${r.status}`);
+  return (await r.json()) as { results: NearbyResult[]; next_page_token?: string };
+};
+
 
     const collected: NearbyResult[] = [];
     const seen = new Set<string>();
@@ -95,8 +98,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         do {
           if (page > 0) await sleep(2100);
           const { results, next_page_token } = await fetchNearbyPage({
-            apiKey, location: `${center.lat},${center.lng}`, radius, type: t, openNow, pagetoken: token,
-          });
+  apiKey,
+  lat: center.lat,
+  lng: center.lng,
+  radius,
+  type: t,
+  opennow: openNow,
+  pagetoken: token,
+});
           page++;
           for (const r of results) {
             if (seen.has(r.place_id)) continue;
