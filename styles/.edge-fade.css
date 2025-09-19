@@ -1,0 +1,20 @@
+.edge-fade {
+  position: relative;
+}
+.edge-fade::before,
+.edge-fade::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  pointer-events: none;
+}
+.edge-fade::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(10, 10, 10, 1), rgba(10, 10, 10, 0));
+}
+.edge-fade::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(10, 10, 10, 1), rgba(10, 10, 10, 0));
+}

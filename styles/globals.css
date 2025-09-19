@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* ===== Downtime Theme — Vibrant Dusk ===== */
+:root{
+  --bg:#0f0e17;
+  --card:#1a1a24;
+  --muted:#1e2532;
+  --ring:#292a33;
+  --text:#f5f5f7;
+  --subtext:#b0b3c1;
+  --primary:#ff006e; /* magenta */
+  --success:#00c48c;
+}
+
+html,body,#__next{height:100%}
+html{scroll-behavior:smooth}
+body{
+  background: radial-gradient(1200px 600px at 50% -200px, #20162a 0%, #0f0e17 60%) fixed;
+  color: var(--text);
+}
+*:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+
+/* Helpers */
+.card{ @apply rounded-2xl bg-neutral-900 ring-1 ring-neutral-800 shadow-[0_10px_30px_-15px_rgba(0,0,0,.6)]; }
+.badge{ @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs; }
+.badge-success{ @apply bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/40; }
+.badge-muted{ @apply bg-neutral-800 text-neutral-300 ring-1 ring-neutral-700; }
+.pill{ @apply inline-flex items-center gap-1 px-3 py-[6px] rounded-full text-sm ring-1 ring-neutral-700 transition; color: var(--text); }
+.pill:hover{ @apply ring-[var(--primary)]; }
+
+/* Chip carousel + contrast */
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none; scrollbar-width:none}
+
+
+.chip{ @apply px-3 py-1.5 rounded-full ring-1 text-sm whitespace-nowrap snap-start; background: var(--muted); color: var(--text); border-color: var(--ring); }
+.chip-active{ background: var(--primary); color: white; box-shadow: 0 4px 16px rgba(255,0,110,.25); border-color: var(--primary); }
+
+.logo-text {
+  background: linear-gradient(
+    90deg,
+  #00f0ff,
+  #ff00f0,
+  #ffea00,
+  #00f0ff
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+
+/* Animated glowing border for location prompt */
+.prompt-card {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.prompt-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, #ff00cc, #3333ff, #00f0ff, #ff00cc);
+  background-size: 300% 300%;
+  animation: borderGlow 8s linear infinite;
+  -webkit-mask: 
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

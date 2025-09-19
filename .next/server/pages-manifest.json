@@ -1,0 +1,11 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/api/geocode": "pages/api/geocode.js",
+  "/map": "pages/map.js",
+  "/api/log": "pages/api/log.js",
+  "/api/travel-times": "pages/api/travel-times.js",
+  "/": "pages/index.js",
+  "/api/places": "pages/api/places.js"
+}

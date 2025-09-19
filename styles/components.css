@@ -1,0 +1,68 @@
+html, body { overscroll-behavior: none; background: #0a0a0a; height: 100%; }
+#__next { min-height: 100%; display: flex; flex-direction: column; }
+
+:root { --topbar-h: 104px; --bg: #0a0a0a; --text: #e5e7eb; --muted: #1a1a1a; --ring: #3f3f46; }
+.topbar { min-height: var(--topbar-h); }
+
+.pill { display:inline-flex; align-items:center; gap:.25rem; padding:.5rem .75rem; border-radius: .75rem; border:1px solid var(--ring); color: var(--text); }
+
+.edge-fade { position: relative; }
+.edge-fade::before, .edge-fade::after { content: ""; position: absolute; top: 0; bottom: 0; width: 36px; pointer-events: none; }
+.edge-fade::before { left: 0; background: linear-gradient(90deg, rgba(10,10,10,1), rgba(10,10,10,0)); }
+.edge-fade::after { right: 0; background: linear-gradient(270deg, rgba(10,10,10,1), rgba(10,10,10,0)); }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.card { background: rgba(24,24,24,0.9); border-radius: 14px; border: 1px solid rgba(80,80,80,0.5); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+.linkbar { display:flex; gap:8px; }
+.iconlink { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:10px; border:1px solid rgba(100,100,100,.6); color:#e5e7eb; background: rgba(35,35,35,.7); }
+.iconlink:hover { background: rgba(50,50,50,.9); }
+
+.map-wrap { height: calc(100vh - var(--topbar-h)); position: relative; }
+@supports (height: 100svh) { .map-wrap { height: calc(100svh - var(--topbar-h)); } }
+.leaflet-container { height: 100% !important; }
+
+
+/* Open now badge */
+.open-now-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.7rem; padding:.2rem .45rem; border-radius:.5rem; background:rgba(34,197,94,.15); color:#22c55e; border:1px solid rgba(34,197,94,.35); }
+
+/* (Optional) pulsing dot if class used) */
+.opendot { width:8px; height:8px; border-radius:9999px; background:#22c55e; position:relative; }
+.opendot::after { content:""; position:absolute; inset:0; border-radius:9999px; box-shadow:0 0 0 0 rgba(34,197,94,.5); animation: pulseDot 2s infinite; }
+@keyframes pulseDot { to { box-shadow:0 0 0 10px rgba(34,197,94,0); } }
+
+
+/* App shell gutters + full-bleed topbar */
+.app-shell { box-sizing: border-box; }
+.topbar { width: 100%; }
+
+/* Prevent 100vw overflow on mobile when sticky headers are used */
+.page-root { overflow-x: hidden; width: 100%; }
+
+.topbar .app-shell{max-width:100%;}
+
+body, .page-root{overflow-x:hidden;}
+
+/* Standardize TopBar buttons */
+.topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;          /* matches h-9 */
+  padding: 0 12px;       /* same horizontal padding for all */
+  font-size: 0.875rem;   /* text-sm */
+  border-radius: 0.75rem;
+  border: 1px solid var(--ring);
+  color: var(--text);
+  cursor: pointer;
+}
+
+
+.topbar-btn:hover {
+  background: #1f1f1f;   /* subtle hover */
+}
+
+.topbar-btn:hover {
+  filter: brightness(1.1); /* subtle brighten, works with gradients */
+}

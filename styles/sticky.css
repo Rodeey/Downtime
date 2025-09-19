@@ -1,0 +1,7 @@
+/* Optional: utilities for sticky header + safe viewport */
+:root {
+  --header-height: 120px; /* approx on mobile; header is sticky and compact */
+}
+.main-with-sticky {
+  min-height: 100dvh;
+}

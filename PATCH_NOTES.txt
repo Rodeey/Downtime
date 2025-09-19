@@ -1,0 +1,44 @@
+Downtime — Category Mix Patch
+------------------------------------------------------------
+This patch adds category-mix selection without touching your existing files.
+Drop these in, then wire one import + two lines in your index.tsx.
+
+Included files (safe to add):
+- lib/selectTopK.ts          : generic selector with caps + Food & Drink special rule
+- lib/categoryCaps.ts        : default caps (sum to 200) + helper to assemble config
+- lib/isFastFood.ts          : v1 fast-food heuristic
+- components/categoryLabels.ts : emoji/short labels for mobile chips
+- pages/index.withSelection.example.tsx : reference showing where selection happens
+
+How to wire into your page (index.tsx) — minimal edits:
+1) After you compute 'enrichedAll', create a proximity-sorted array:
+   const proximitySorted = useMemo(() => [...enrichedAll].sort((a:any,b:any)=>(a.distanceKm||0)-(b.distanceKm||0)), [enrichedAll]);
+
+2) Select the final 200 with caps:
+   import { selectTopK } from "@/lib/selectTopK";
+   import { makeSelectionConfig } from "@/lib/categoryCaps";
+   import { getPrimaryCategory } from "@/components/categoryMeta";
+   import { isFastFoodFromTypes } from "@/lib/isFastFood";
+
+   const selectedPool = useMemo(() => {
+     const cfg = makeSelectionConfig<any>({
+       getCategory: (p) => getPrimaryCategory(Array.isArray(p.types)?p.types: (typeof p.types==="string"?[p.types]:[])),
+       getTypes: (p) => (Array.isArray(p.types)?p.types: (typeof p.types==="string"?[p.types]:[])),
+       isFastFood: (p) => isFastFoodFromTypes(Array.isArray(p.types)?p.types: (typeof p.types==="string"?[p.types]:[])),
+     });
+     return selectTopK<any>(proximitySorted, cfg);
+   }, [proximitySorted]);
+
+3) From that point on, use 'selectedPool' instead of 'enrichedAll' for filtering/sorting:
+   const filtered = useMemo(() => {
+     if (selectedCategory === "All") return selectedPool;
+     const wanted = new Set((CATEGORY_MAP[selectedCategory] || []).map((s) => s.toLowerCase()));
+     return selectedPool.filter((p:any) => (p.types || []).some((t:string) => wanted.has(t.toLowerCase())));
+   }, [selectedPool, selectedCategory]);
+
+4) (Optional) Short labels in your TopBar:
+   import { getCategoryLabel } from "@/components/categoryLabels";
+   // when building categoryCounts, map names -> getCategoryLabel(name)
+
+No existing files are overwritten by this patch. If you want me to produce a ready-to-drop
+'pages/index.tsx' that integrates this for you, say: "ship the integrated index".
