@@ -1,5 +1,90 @@
 // pages/api/places.ts
 import type { NextApiRequest, NextApiResponse } from "next";
+import {
+  GatewayPlace,
+  fetchPlacesFromGateway,
+} from "@/lib/api/gateway";
+
+type NearbyResult = {
+  place_id: string;
+  name: string;
+  vicinity?: string;
+  geometry?: { location: { lat: number; lng: number } };
+  opening_hours?: { open_now?: boolean };
+  rating?: number | null;
+  user_ratings_total?: number;
+  types?: string[];
+  distanceKm?: number;
+  formatted_phone_number?: string | null;
+  website?: string | null;
+  url?: string;
+};
+
+type Resp = NearbyResult[];
+
+function transformPlace(place: GatewayPlace): NearbyResult {
+  const geometry = {
+    location: { lat: place.lat, lng: place.lng },
+  };
+
+  return {
+    place_id: place.place_id,
+    name: place.name,
+    vicinity: place.address,
+    geometry,
+    opening_hours: { open_now: place.open_now },
+    rating: place.rating ?? null,
+    types: place.categories,
+    distanceKm: place.distance_m ? place.distance_m / 1000 : undefined,
+    formatted_phone_number: place.phone,
+    website: place.website ?? undefined,
+    url: `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(
+      place.place_id
+    )}`,
+  };
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const lat = Number(req.query.lat);
+    const lng = Number(req.query.lng);
+    const radius = Number(req.query.radius ?? req.query.radius_m ?? 1000);
+    const categories = (req.query.categories as string | undefined) ?? undefined;
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return res.status(400).json({ error: "lat & lng required" });
+    }
+
+    const data = await fetchPlacesFromGateway({
+      lat,
+      lng,
+      radius_m: Number.isFinite(radius) ? radius : 1000,
+      categories,
+    });
+
+    const transformed: Resp = Array.isArray(data.places)
+      ? data.places.map(transformPlace)
+      : [];
+
+    return res.status(200).json(transformed);
+  } catch (error: any) {
+    console.error("[Places API] Gateway proxy error", error?.message || error);
+    return res.status(500).json({ error: "Failed to fetch places" });
+  }
+}
+
+/*
+Previous Google Places implementation retained for reference during rollout.
+
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type NearbyResult = {
   place_id: string;
@@ -157,3 +242,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: err?.message || "Internal error" });
   }
 }
+*/

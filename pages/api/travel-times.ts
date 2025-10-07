@@ -1,5 +1,55 @@
 // pages/api/travel-times.ts
 import type { NextApiRequest, NextApiResponse } from "next";
+import { getTravelTimesFromGateway } from "@/lib/api/gateway";
+
+type LatLng = { lat: number; lng: number };
+type Dest = { id: string; lat: number; lng: number };
+
+type TravelTimesResult = {
+  id: string;
+  drivingMinutes: number | null;
+  walkingMinutes: number | null;
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const { origin, destinations } = req.body as {
+      origin: LatLng;
+      destinations: Dest[];
+    };
+
+    if (!origin || !destinations?.length) {
+      return res.status(400).json({ error: "origin and destinations[] required" });
+    }
+
+    const gatewayResponse = await getTravelTimesFromGateway(origin, destinations);
+    const results: TravelTimesResult[] = gatewayResponse.results.map((item, index) => ({
+      id: destinations[index]?.id ?? item.id,
+      drivingMinutes: item.drivingMinutes,
+      walkingMinutes: item.walkingMinutes,
+    }));
+
+    return res.status(200).json({ results });
+  } catch (error: any) {
+    console.error("[Travel Times API] Gateway proxy error", error?.message || error);
+    return res
+      .status(500)
+      .json({ error: error?.message || "Failed to fetch travel times" });
+  }
+}
+
+/*
+Original Google Distance Matrix implementation preserved for reference.
+
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type LatLng = { lat: number; lng: number };
 type Dest = { id: string; lat: number; lng: number };
@@ -71,3 +121,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({ error: e?.message || "Failed to fetch travel times" });
   }
 }
+*/
