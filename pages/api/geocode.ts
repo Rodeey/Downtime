@@ -1,4 +1,33 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { geocodeFromGateway } from "@/lib/api/gateway";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const query = req.query.query as string | undefined;
+  if (!query) {
+    return res.status(400).json({ error: "Missing query" });
+  }
+
+  try {
+    const data = await geocodeFromGateway(query);
+    return res.status(200).json(data);
+  } catch (error: any) {
+    console.error("[Geocode API] Gateway proxy error", error?.message || error);
+    return res.status(500).json({ error: "Geocode error" });
+  }
+}
+
+/*
+Legacy Google Geocoding implementation preserved for rollback.
+
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { query } = req.query;
@@ -32,3 +61,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({ error: e.message || "Geocode error" });
   }
 }
+*/
